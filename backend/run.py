@@ -1,6 +1,11 @@
 from flask import Flask
-from app import create_app
-from app.config import DevConfig
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from app import create_app  # noqa: E402
+from app.config import DevConfig  # noqa: E402
 
 app: Flask = create_app(config_class=DevConfig)
 if __name__ == "__main__":

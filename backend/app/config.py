@@ -2,8 +2,9 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "dev_key"
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev_key")
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
 
 
 class ProdConfig(Config):
