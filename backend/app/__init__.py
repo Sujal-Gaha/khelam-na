@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 
+from app.swagger import init_swagger
+
 from .config import Config
 from .extensions import db, migrate
 
@@ -13,10 +15,10 @@ def create_app(config_class=Config) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
 
-    print(f"configuration is {app.config}")
-
     from .routes.v1 import bp as v1_bp
 
     app.register_blueprint(v1_bp, url_prefix="/api/v1")
+
+    init_swagger(app)
 
     return app
