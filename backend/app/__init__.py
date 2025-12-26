@@ -15,6 +15,8 @@ def create_app(config_class=Config) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
 
+    from .models.user import User
+
     from .routes.v1 import bp as v1_bp
 
     app.register_blueprint(v1_bp, url_prefix="/api/v1")
