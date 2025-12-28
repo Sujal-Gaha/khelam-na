@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 from app.models.auth.auth_provider import AuthProvider
 from app.models.auth.enums import AuthProviderEnum
+from app.models.auth.refresh_token import RefreshToken
 
 
 class User(db.Model):
@@ -58,7 +59,7 @@ class User(db.Model):
     auth_providers = db.relationship(
         "AuthProvider", backref="user", lazy=True, cascade="all, delete-orphan"
     )
-    refresh_token = db.relationship(
+    refresh_tokens = db.relationship(
         "RefreshToken", backref="user", lazy=True, cascade="all, delete-orphan"
     )
     otp_codes = db.relationship(
@@ -75,6 +76,9 @@ class User(db.Model):
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+
+    def has_password(self) -> bool:
+        return self.password_hash is not None and self.verify_password("") is False
 
     def set_password(self, password):
         """Has and set password"""
@@ -194,6 +198,18 @@ class User(db.Model):
             "iat": datetime.now(timezone.utc),
         }
         return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+
+    def generate_refresh_token(self):
+        """Generate long-lived refresh token and store in DB"""
+        token_string = secrets.token_urlsafe(32)
+        refresh_token = RefreshToken(
+            user_id=self.id,
+            token=token_string,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=30),
+        )
+        db.session.add(refresh_token)
+        db.session.commit()
+        return token_string
 
     @staticmethod
     def verify_access_token(token):

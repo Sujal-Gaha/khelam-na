@@ -18,6 +18,11 @@ class RefreshToken(db.Model):
     user_agent = db.Column(db.String(500), nullable=True)
     ip_address = db.Column(db.String(45), nullable=True)
 
+    def __init__(self, user_id, token, expires_at):
+        self.user_id = user_id
+        self.token = token
+        self.expires_at = expires_at
+
     def is_valid(self):
         """Check if token is valid"""
         return not self.is_revoked and self.expires_at > datetime.now(timezone.utc)
