@@ -5,11 +5,13 @@ import secrets
 from flask import current_app
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
 from app.models.auth.auth_provider import AuthProvider
 from app.models.auth.enums import AuthProviderEnum
 from app.models.auth.refresh_token import RefreshToken
+from app.models.auth.otp_code import OTPCode
 
 
 class User(db.Model):
@@ -18,37 +20,49 @@ class User(db.Model):
     __tablename__ = "users"
 
     # Basic Info
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    phone = db.Column(db.String(20), unique=True, nullable=True, index=True)
-    password_hash: str = db.Column(
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    email: Mapped[str] = mapped_column(
+        db.String(120), unique=True, nullable=False, index=True
+    )
+    phone: Mapped[str | None] = mapped_column(
+        db.String(20), unique=True, nullable=True, index=True
+    )
+    password_hash: Mapped[str | None] = mapped_column(
         db.String(255), nullable=True
     )  # Nullable for OAuth-only users
-    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_url = mapped_column(db.String(500), nullable=True)
 
     # Account Status
-    is_email_verified = db.Column(db.Boolean, default=False, nullable=False)
-    is_phone_verified = db.Column(db.Boolean, default=False, nullable=False)
-    is_active = db.Column(db.Boolean, default=True, nullable=False)
-    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    is_email_verified: Mapped[bool] = mapped_column(
+        db.Boolean, default=False, nullable=False
+    )
+    is_phone_verified: Mapped[bool] = mapped_column(
+        db.Boolean, default=False, nullable=False
+    )
+    is_active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
 
     # 2FA / TOTP
-    totp_secret = db.Column(db.String(32), nullable=True)
-    is_2fa_enabled = db.Column(db.Boolean, default=False, nullable=False)
-    backup_codes = db.Column(db.Text, nullable=True)  # JSON string of backup codes
+    totp_secret: Mapped[str | None] = mapped_column(db.String(32), nullable=True)
+    is_2fa_enabled: Mapped[bool] = mapped_column(
+        db.Boolean, default=False, nullable=False
+    )
+    backup_codes = mapped_column(db.Text, nullable=True)  # JSON string of backup codes
 
     # Security Tracking
-    failed_login_attempts = db.Column(db.Integer, default=0, nullable=False)
-    locked_until = db.Column(db.DateTime, nullable=True)
-    last_login = db.Column(db.DateTime, nullable=True)
-    last_login_ip = db.Column(db.String(45), nullable=True)
+    failed_login_attempts: Mapped[int] = mapped_column(
+        db.Integer, default=0, nullable=False
+    )
+    locked_until = mapped_column(db.DateTime, nullable=True)
+    last_login = mapped_column(db.DateTime, nullable=True)
+    last_login_ip: Mapped[str | None] = mapped_column(db.String(45), nullable=True)
 
     # Timestamps
-    created_at = db.Column(
+    created_at = mapped_column(
         db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
-    updated_at = db.Column(
+    updated_at = mapped_column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -56,13 +70,13 @@ class User(db.Model):
     )
 
     # Relationships
-    auth_providers = db.relationship(
+    auth_providers: Mapped[list["AuthProvider"]] = relationship(
         "AuthProvider", backref="user", lazy=True, cascade="all, delete-orphan"
     )
-    refresh_tokens = db.relationship(
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         "RefreshToken", backref="user", lazy=True, cascade="all, delete-orphan"
     )
-    otp_codes = db.relationship(
+    otp_codes: Mapped[list["OTPCode"]] = relationship(
         "OTPCode", backref="user", lazy=True, cascade="all, delete-orphan"
     )
 
