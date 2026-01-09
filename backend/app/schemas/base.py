@@ -1,4 +1,4 @@
-from marshmallow import Schema, EXCLUDE
+from marshmallow import Schema, EXCLUDE, fields
 
 
 class BaseSchema(Schema):
@@ -11,3 +11,13 @@ class BaseSchema(Schema):
         datetimeformat = "utc"
         # Preserve field order
         ordered = True
+
+
+class SuccessSchema(Schema):
+    message = fields.Str(required=True)
+    is_success = fields.Bool(required=True, dump_default=True)
+
+
+class ErrorSchema(Schema):
+    error = fields.Str(required=True)
+    is_success = fields.Bool(required=True, dump_default=False)

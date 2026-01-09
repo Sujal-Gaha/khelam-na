@@ -62,13 +62,13 @@ class AuthService:
             return None, None, None, str(e)
 
     @staticmethod
-    def register_with_password(name, email, password):
+    def register_with_password(username, email, password):
         """Register user with password and send verification OTP"""
         try:
             if User.query.filter_by(email=email).first():
                 return None, "User already exists"
 
-            user = User(name=name, email=email, password=password)
+            user = User(username=username, email=email, password=password)
             db.session.add(user)
             db.session.commit()
 
@@ -216,7 +216,7 @@ class AuthService:
             img = qr.make_image(fill_color="black", back_color="white")
 
             buffer = io.BytesIO()
-            img.save(buffer, format="PNG")
+            img.save(buffer, kind="PNG")
             img_str = base64.b64encode(buffer.getvalue()).decode()
 
             return img_str, backup_codes, None
@@ -300,7 +300,7 @@ class AuthService:
         provider: AuthProviderEnum,
         provider_user_id,
         email,
-        name,
+        username,
         avatar_url=None,
         provider_data=None,
     ):
@@ -348,7 +348,7 @@ class AuthService:
             # Create new user if not found
             if not user:
                 user = User(
-                    name=name,
+                    username=username,
                     email=email,
                     is_email_verified=True,
                     avatar_url=avatar_url,

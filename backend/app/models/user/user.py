@@ -20,15 +20,12 @@ class User(db.Model):
     __tablename__ = "users"
 
     # Basic Info
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(db.String(100), nullable=False)
     email: Mapped[str] = mapped_column(
         db.String(120), unique=True, nullable=False, index=True
     )
-    phone: Mapped[str | None] = mapped_column(
-        db.String(20), unique=True, nullable=True, index=True
-    )
-    password_hash: Mapped[str | None] = mapped_column(
+    password: Mapped[str | None] = mapped_column(
         db.String(255), nullable=True
     )  # Nullable for OAuth-only users
     avatar_url = mapped_column(db.String(500), nullable=True)
@@ -37,18 +34,8 @@ class User(db.Model):
     is_email_verified: Mapped[bool] = mapped_column(
         db.Boolean, default=False, nullable=False
     )
-    is_phone_verified: Mapped[bool] = mapped_column(
-        db.Boolean, default=False, nullable=False
-    )
     is_active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
     is_deleted: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
-
-    # 2FA / TOTP
-    totp_secret: Mapped[str | None] = mapped_column(db.String(32), nullable=True)
-    is_2fa_enabled: Mapped[bool] = mapped_column(
-        db.Boolean, default=False, nullable=False
-    )
-    backup_codes = mapped_column(db.Text, nullable=True)  # JSON string of backup codes
 
     # Security Tracking
     failed_login_attempts: Mapped[int] = mapped_column(
@@ -80,8 +67,8 @@ class User(db.Model):
         "OTPCode", backref="user", lazy=True, cascade="all, delete-orphan"
     )
 
-    def __init__(self, name, email, password=None, **kwargs):
-        self.name = name
+    def __init__(self, username, email, password=None, **kwargs):
+        self.username = username
         self.email = email
 
         if password:
@@ -296,20 +283,19 @@ class User(db.Model):
         return False
 
     def __repr__(self):
-        return f"<User {self.name}>"
+        return f"<User {self.username}>"
 
     def to_dict(self, include_timestamps=False):
         """Convert user to dictionary"""
         user = {
             "id": self.id,
-            "name": self.name,
+            "username": self.username,
             "email": self.email,
-            "phone": self.phone,
             "avatar_url": self.avatar_url,
         }
 
         if include_timestamps:
-            user["created_at"] = self.created_at.isoformat()
-            user["updated_at"] = self.updated_at.isoformat()
+            user["created_at"] = self.created_at
+            user["updated_at"] = self.updated_at
 
         return user

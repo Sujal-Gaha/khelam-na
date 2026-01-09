@@ -12,7 +12,6 @@ class OTPCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     email = db.Column(db.String(120), nullable=True, index=True)
-    phone = db.Column(db.String(20), nullable=True, index=True)
     code = db.Column(db.String(10), nullable=False)
     purpose = db.Column(db.String(50), nullable=False, index=True)
     expires_at = db.Column(db.DateTime, nullable=False)
@@ -24,14 +23,12 @@ class OTPCode(db.Model):
         self,
         purpose,
         email=None,
-        phone=None,
         user_id=None,
         code_length=6,
         expires_in=600,
     ):
         self.user_id = user_id
         self.email = email
-        self.phone = phone
         self.purpose = purpose
         self.code = "".join([str(secrets.randbelow(10)) for _ in range(code_length)])
         self.expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
@@ -61,42 +58,31 @@ class OTPCode(db.Model):
         return False
 
     @staticmethod
-    def create_and_send(purpose, email=None, phone=None, user_id=None):
+    def create_and_send(purpose, email=None, user_id=None):
         """Create OTP and send via email/SMS"""
         # Clean up old unused OTPs
         if email:
             OTPCode.query.filter_by(
                 email=email, purpose=purpose, is_used=False
             ).delete()
-        if phone:
-            OTPCode.query.filter_by(
-                phone=phone, purpose=purpose, is_used=False
-            ).delete()
 
-        otp = OTPCode(purpose=purpose, email=email, phone=phone, user_id=user_id)
+        otp = OTPCode(purpose=purpose, email=email, user_id=user_id)
         db.session.add(otp)
         db.session.commit()
 
         # Send OTP
         if email:
-            # send otp via phone
-            pass
-        if phone:
-            # send otp via phone
             pass
 
         return otp
 
     @staticmethod
-    def verify_code(code, purpose, email=None, phone=None):
+    def verify_code(code, purpose, email=None):
         """Verify OTP code"""
         query = OTPCode.query.filter_by(purpose=purpose, is_used=False)
 
         if email:
             query = query.filter_by(email=email)
-
-        elif phone:
-            query = query.filter_by(phone=phone)
 
         else:
             return False

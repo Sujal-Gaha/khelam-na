@@ -1,8 +1,15 @@
 from flask import Blueprint, Response, jsonify, request
+from marshmallow import ValidationError
 
 from app.extensions import db
 from app.models.user import User
-from app.schemas.user_schema import UserResponseSchema
+from app.schemas.user_schema import (
+    GetAllUsersInputSchema,
+    GetAllUsersResponseSchema,
+    GetUserByIdInputSchema,
+    GetUserByIdResponseSchema,
+    UserResponseSchema,
+)
 
 bp: Blueprint = Blueprint("users", __name__)
 
@@ -125,18 +132,17 @@ def get_all_users() -> Response | tuple[Response, int]:
         sort_by = request.args.get("sort_by", "created_at", type=str)
         order = request.args.get("order", "desc", type=str)
 
-        # Validate parameters
-        if page < 1:
-            return jsonify({"error": "Page must be greater than 0"}), 400
+        input_schema = GetAllUsersInputSchema()
+        errors = input_schema.validate({"page": page, "per_page": per_page})
 
-        if per_page < 1 or per_page > 100:
-            return jsonify({"error": "per_page must be between 1 and 100"}), 400
+        if errors:
+            return jsonify({"error": errors}), 400
 
-        if sort_by not in ["name", "email", "created_at"]:
+        if sort_by not in ["username", "email", "created_at"]:
             return (
                 jsonify(
                     {
-                        "error": "Invalid sort_by field. Must be one of: name, email, created_at"
+                        "error": "Invalid sort_by field. Must be one of: username, email, created_at"
                     }
                 ),
                 400,
@@ -146,14 +152,15 @@ def get_all_users() -> Response | tuple[Response, int]:
             return jsonify({"error": "Order must be 'asc' or 'desc'"}), 400
 
         # Build query
-        query = User.query
+        query = User.query.filter_by(is_deleted=False)
 
         # Apply search filter
         if search:
             search_pattern = f"%{search}%"
             query = query.filter(
                 db.or_(
-                    User.name.ilike(search_pattern), User.email.ilike(search_pattern)
+                    User.username.ilike(search_pattern),
+                    User.email.ilike(search_pattern),
                 )
             )
 
@@ -164,29 +171,125 @@ def get_all_users() -> Response | tuple[Response, int]:
         else:
             query = query.order_by(sort_column.asc())
 
-        # Get total count before pagination
         total = query.count()
-
-        # Apply pagination
         paginated_users = query.paginate(page=page, per_page=per_page, error_out=False)
 
-        # Serialize users
-        users_data = users_response_schema.dump(paginated_users.items)
-
-        # Build response
         response = {
-            "users": users_data,
-            "pagination": {
-                "page": page,
-                "per_page": per_page,
-                "total": total,
-                "pages": paginated_users.pages,
-                "has_next": paginated_users.has_next,
-                "has_prev": paginated_users.has_prev,
-            },
+            "data": {
+                "data": paginated_users.items,
+                "pagination": {
+                    "page": page,
+                    "per_page": per_page,
+                    "total": total,
+                    "pages": paginated_users.pages,
+                    "has_next": paginated_users.has_next,
+                    "has_prev": paginated_users.has_prev,
+                },
+            }
         }
 
-        return jsonify(response), 200
+        serialized_data = GetAllUsersResponseSchema().dump(response), 200
+
+        return jsonify(serialized_data), 200
+
+    except ValidationError as e:
+        return jsonify({"error": e.messages}), 400
+
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occured", "details": str(e)}), 500
+
+
+@bp.route("/user/get_user_by_id", methods=["GET"])
+def get_user_by_id() -> Response | tuple[Response, int]:
+    """
+    Get user by Id
+    ---
+    tags:
+      - Users
+    operationId: get_user_by_id
+    summary: Retrieve user by id
+    description: Returns user by id in the system
+    parameters:
+      - name: user_id
+        in: query
+        type: integer
+        description: The id of the user
+    responses:
+      200:
+        description: A user by id
+        schema:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: johndoe
+                email:
+                  type: string
+                  example: john@example.com
+                created_at:
+                  type: string
+                  format: date-time
+                  example: "2026-01-09T12:00:00"
+                updated_at:
+                  type: string
+                  format: date-time
+                  example: "2026-01-09T12:00:00"
+      400:
+        description: Bad request - Invalid parameters
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: User id must be provided
+      404:
+        description: Not found
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: User not found
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+    """
+
+    try:
+        user_id = request.args.get("user_id", type=int)
+
+        input_schema = GetUserByIdInputSchema()
+        errors = input_schema.validate({"id": user_id})
+
+        if errors:
+            return jsonify({"error": errors}), 400
+
+        if user_id is None:
+            return jsonify({"error": "User id is required"}), 400
+
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        response = {"data": user}
+        serialized_data = GetUserByIdResponseSchema().dump(response)
+
+        return jsonify(serialized_data), 200
+
+    except ValidationError as e:
+        return jsonify({"error": e.messages}), 400
 
     except Exception as e:
         return jsonify({"error": "An unexpected error occured", "details": str(e)}), 500
