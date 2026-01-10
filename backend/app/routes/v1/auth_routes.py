@@ -1,3 +1,4 @@
+from typing import Any, cast
 from flask import Blueprint, Response, jsonify, request
 from marshmallow import ValidationError
 
@@ -12,15 +13,29 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def register() -> Response | tuple[Response, int]:
     """Register a new user with email and password"""
     try:
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"error": "No data provided"}), 400
+
         schema = RegisterInputSchema()
-        data = schema.load(request.get_json())
+        validated_data = schema.load(json_data)
+
+        if not validated_data:
+            return jsonify({"error": "Invalid data"}), 400
+
+        data = cast(dict[str, Any], validated_data)
 
         user, error = AuthService.register_with_password(
-            username=data["username"], email=data["email"], password=data["password"]
+            username=data["username"],
+            email=data["email"],
+            password=data.get("password"),
         )
 
         if error:
             return jsonify({"error": error}), 400
+
+        if not user:
+            return jsonify({"error": "Registration failed"}), 500
 
         return (
             jsonify(

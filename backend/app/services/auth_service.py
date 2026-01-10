@@ -71,6 +71,7 @@ class AuthService:
             user = User(username=username, email=email, password=password)
             db.session.add(user)
             db.session.commit()
+            db.session.refresh(user)
 
             OTPCode.create_and_send(
                 purpose="email_verification", email=email, user_id=user.id
