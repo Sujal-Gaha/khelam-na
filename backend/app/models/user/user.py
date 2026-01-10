@@ -1,5 +1,4 @@
 import jwt
-import pyotp
 import secrets
 
 from flask import current_app
@@ -227,60 +226,6 @@ class User(db.Model):
             return None
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             return None
-
-    # 2FA / TOTP Methods
-    def enable_2fa(self):
-        """Enable 2FA and generate TOTP secret"""
-        self.totp_secret = pyotp.random_base32()
-        self.is_2fa_enabled = True
-
-        # Generate backup codes
-        backup_codes = [secrets.token_hex(4) for _ in range(10)]
-        import json
-
-        self.backup_codes = json.dumps(backup_codes)
-
-        db.session.commit()
-
-        return self.totp_secret, backup_codes
-
-    def disable_2fa(self):
-        """Disable 2FA"""
-        self.totp_secret = None
-        self.is_2fa_enabled = False
-        self.backup_codes = None
-        db.session.commit()
-
-    def get_totp_uri(self):
-        """Get TOTP URI for QR code generation"""
-        if not self.totp_secret:
-            return None
-        return pyotp.totp.TOTP(self.totp_secret).provisioning_uri(
-            name=self.email, issuer_name=current_app.config.get("APP_NAME", "KhelamNa")
-        )
-
-    def verify_totp(self, code):
-        """Verify TOTP code"""
-        if not self.totp_secret:
-            return False
-        totp = pyotp.TOTP(self.totp_secret)
-        return totp.verify(code, valid_window=1)
-
-    def verify_backup_code(self, code):
-        """Verify and consume backup code"""
-        if not self.backup_codes:
-            return False
-
-        import json
-
-        codes = json.loads(self.backup_codes)
-
-        if code in codes:
-            codes.remove(code)
-            self.backup_codes = json.dumps(codes)
-            db.session.commit()
-            return True
-        return False
 
     def __repr__(self):
         return f"<User {self.username}>"

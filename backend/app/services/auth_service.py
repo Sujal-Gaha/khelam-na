@@ -90,35 +90,30 @@ class AuthService:
             user = User.query.filter_by(email=email).first()
 
             if not user:
-                return None, None, None, False, "Invalid credentials"
+                return None, None, None, "Invalid credentials"
 
             if user.is_deleted:
-                return None, None, None, False, "Account no longer exists"
+                return None, None, None, "Account no longer exists"
 
             if not user.is_active:
-                return None, None, None, False, "Account is deactivated"
+                return None, None, None, "Account is deactivated"
 
             if user.is_account_locked():
-                return None, None, None, False, "Account is locked"
+                return None, None, None, "Account is locked"
 
             if not user.verify_password(password):
                 user.increment_failed_login()
-                return None, None, None, False, "Invalid credentials"
-
-            # Check if 2FA is enabled
-
-            if user.is_2fa_enabled:
-                return None, None, user, True, None
+                return None, None, None, "Invalid credentials"
 
             user.reset_failed_login(ip_address)
 
             access_token = user.generate_access_token()
             refresh_token = user.generate_refresh_token()
 
-            return access_token, refresh_token, user, False, None
+            return access_token, refresh_token, user, None
 
         except Exception as e:
-            return None, None, None, False, str(e)
+            return None, None, None, str(e)
 
     @staticmethod
     def send_verification_otp(email):
@@ -202,52 +197,6 @@ class AuthService:
         except Exception as e:
             db.session.rollback()
             return False, str(e)
-
-    @staticmethod
-    def enable_2fa(user):
-        """Enable 2FA for user"""
-        try:
-            totp_secret, backup_codes = user.enable_2fa()
-
-            uri = user.get_totp_uri()
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(uri)
-            qr.make(fit=True)
-
-            img = qr.make_image(fill_color="black", back_color="white")
-
-            buffer = io.BytesIO()
-            img.save(buffer, kind="PNG")
-            img_str = base64.b64encode(buffer.getvalue()).decode()
-
-            return img_str, backup_codes, None
-
-        except Exception as e:
-            return None, None, str(e)
-
-    @staticmethod
-    def verify_2fa_and_login(user: User, code, ip_address=None):
-        """Verify 2FA code and complete login"""
-
-        try:
-            if user.verify_totp(code):
-                user.reset_failed_login(ip_address)
-                access_token = user.generate_access_token()
-                refresh_token = user.generate_refresh_token()
-
-                return access_token, refresh_token, None
-
-            if user.verify_backup_code(code):
-                user.reset_failed_login(ip_address)
-                access_token = user.generate_access_token()
-                refresh_token = user.generate_refresh_token()
-                return access_token, refresh_token, None
-
-            user.increment_failed_login()
-            return None, None, "Invalid 2FA code"
-
-        except Exception as e:
-            return None, None, str(e)
 
     @staticmethod
     def refresh_access_token(refresh_token):

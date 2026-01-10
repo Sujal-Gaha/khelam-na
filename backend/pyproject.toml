@@ -1,0 +1,21 @@
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "flask.*",
+    "flask_sqlalchemy.*",
+    "flask_migrate.*",
+    "marshmallow.*",
+    "sqlalchemy.*",
+    "alembic.*",
+    "flasgger.*",
+    "dotenv.*",
+    "jwt.*",
+    "werkzeug.*",
+    "qrcode.*",
+]
+ignore_missing_imports = true

@@ -1,4 +1,4 @@
-from marshmallow import ValidationError, fields, validate, validates
+from marshmallow import Schema, ValidationError, fields, validate, validates
 from app.schemas.base import BaseSchema, SuccessSchema
 from app.schemas.mixins import StripLowerMixin
 
