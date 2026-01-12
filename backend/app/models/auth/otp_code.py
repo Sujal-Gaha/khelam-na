@@ -1,7 +1,11 @@
 import secrets
+from typing import Optional
 
 from app.extensions import db
 from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import String, Integer, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class OTPCode(db.Model):
@@ -9,15 +13,16 @@ class OTPCode(db.Model):
 
     __tablename__ = "otp_codes"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    email = db.Column(db.String(120), nullable=True, index=True)
-    code = db.Column(db.String(10), nullable=False)
-    purpose = db.Column(db.String(50), nullable=False, index=True)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    is_used = db.Column(db.Boolean, default=False, nullable=False)
-    attempts = db.Column(db.Integer, default=0, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, index=True)
+    code: Mapped[str] = mapped_column(String(10), nullable=False)
+    purpose: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    expires_at: Mapped[datetime]  = mapped_column(DateTime, nullable=False)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
     def __init__(
         self,
@@ -72,6 +77,7 @@ class OTPCode(db.Model):
 
         # Send OTP
         if email:
+            print(f"OTP stolen {otp}")
             pass
 
         return otp

@@ -1,22 +1,26 @@
 from datetime import datetime, timezone
 from app.extensions import db
 
+from sqlalchemy import Integer, ForeignKey, String, DateTime, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class RefreshToken(db.Model):
     """Store refresh tokens in database for revocation"""
 
     __tablename__ = "refresh_tokens"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    token = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    is_revoked = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    is_revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
     # Track device/session info
-    user_agent = db.Column(db.String(500), nullable=True)
-    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent: Mapped[str] = mapped_column(String(500), nullable=True)
+    ip_address: Mapped[str] = mapped_column(String(45), nullable=True)
 
     def __init__(self, user_id, token, expires_at):
         self.user_id = user_id

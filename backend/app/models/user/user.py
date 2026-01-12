@@ -4,6 +4,7 @@ import secrets
 from flask import current_app
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Boolean, String, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -19,37 +20,37 @@ class User(db.Model):
     __tablename__ = "users"
 
     # Basic Info
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(
-        db.String(120), unique=True, nullable=False, index=True
+        String(120), unique=True, nullable=False, index=True
     )
     password: Mapped[str | None] = mapped_column(
-        db.String(255), nullable=True
+        String(255), nullable=True
     )  # Nullable for OAuth-only users
-    avatar_url = mapped_column(db.String(500), nullable=True)
+    avatar_url = mapped_column(String(500), nullable=True)
 
     # Account Status
     is_email_verified: Mapped[bool] = mapped_column(
-        db.Boolean, default=False, nullable=False
+        Boolean, default=False, nullable=False
     )
-    is_active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Security Tracking
     failed_login_attempts: Mapped[int] = mapped_column(
         db.Integer, default=0, nullable=False
     )
-    locked_until = mapped_column(db.DateTime, nullable=True)
-    last_login = mapped_column(db.DateTime, nullable=True)
+    locked_until = mapped_column(DateTime, nullable=True)
+    last_login = mapped_column(DateTime, nullable=True)
     last_login_ip: Mapped[str | None] = mapped_column(db.String(45), nullable=True)
 
     # Timestamps
     created_at = mapped_column(
-        db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
     updated_at = mapped_column(
-        db.DateTime,
+        DateTime,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
