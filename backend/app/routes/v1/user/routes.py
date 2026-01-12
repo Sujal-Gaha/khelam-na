@@ -3,7 +3,7 @@ from marshmallow import ValidationError
 
 from app.extensions import db
 from app.models.user import User
-from app.schemas.user_schema import (
+from app.schemas.user import (
     GetAllUsersInputSchema,
     GetAllUsersResponseSchema,
     GetUserByIdInputSchema,
@@ -59,55 +59,59 @@ def get_all_users() -> Response | tuple[Response, int]:
         default: desc
         description: Sort order
     responses:
-      200:
+      "200":
         description: A list of users
         schema:
           type: object
           properties:
-            users:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  name:
-                    type: string
-                    example: johndoe
-                  email:
-                    type: string
-                    example: john@example.com
-                  created_at:
-                    type: string
-                    format: date-time
-                    example: "2024-01-01T12:00:00"
-                  updated_at:
-                    type: string
-                    format: date-time
-                    example: "2024-01-01T12:00:00"
-            pagination:
+            data:
               type: object
               properties:
-                page:
-                  type: integer
-                  example: 1
-                per_page:
-                  type: integer
-                  example: 10
-                total:
-                  type: integer
-                  example: 100
-                pages:
-                  type: integer
-                  example: 10
-                has_next:
-                  type: boolean
-                  example: true
-                has_prev:
-                  type: boolean
-                  example: false
-        400:
+                data:
+                  type: array
+                  description: list of users
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      username:
+                        type: string
+                        example: johndoe
+                      email:
+                        type: string
+                        example: john@example.com
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T12:00:00"
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T12:00:00"
+                pagination:
+                  type: object
+                  properties:
+                    page:
+                      type: integer
+                      example: 1
+                    per_page:
+                      type: integer
+                      example: 10
+                    total:
+                      type: integer
+                      example: 100
+                    pages:
+                      type: integer
+                      example: 10
+                    has_next:
+                      type: boolean
+                      example: true
+                    has_prev:
+                      type: boolean
+                      example: false
+        "400":
           description: Bad request - Invalid parameters
           schema:
             type: object
@@ -115,14 +119,14 @@ def get_all_users() -> Response | tuple[Response, int]:
               error:
                 type: string
                 example: Invalid page or per_page parameter
-        500:
+        "500":
           description: Internal server error
           schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: An unexpected error occured
+            type: object
+            properties:
+              error:
+                type: string
+                example: An unexpected error occured
     """
     try:
         # Get pagination parameters
@@ -188,7 +192,7 @@ def get_all_users() -> Response | tuple[Response, int]:
             }
         }
 
-        serialized_data = GetAllUsersResponseSchema().dump(response), 200
+        serialized_data = GetAllUsersResponseSchema().dump(response)
 
         return jsonify(serialized_data), 200
 
@@ -215,7 +219,7 @@ def get_user_by_id() -> Response | tuple[Response, int]:
         type: integer
         description: The id of the user
     responses:
-      200:
+      "200":
         description: A user by id
         schema:
           type: object
@@ -240,7 +244,7 @@ def get_user_by_id() -> Response | tuple[Response, int]:
                   type: string
                   format: date-time
                   example: "2026-01-09T12:00:00"
-      400:
+      "400":
         description: Bad request - Invalid parameters
         schema:
           type: object
@@ -248,7 +252,7 @@ def get_user_by_id() -> Response | tuple[Response, int]:
             error:
               type: string
               example: User id must be provided
-      404:
+      "404":
         description: Not found
         schema:
           type: object
@@ -256,7 +260,7 @@ def get_user_by_id() -> Response | tuple[Response, int]:
             error:
               type: string
               example: User not found
-      500:
+      "500":
         description: Internal server error
         schema:
           type: object

@@ -158,34 +158,6 @@ class PasswordResetInputSchema(StripLowerMixin, BaseSchema):
             raise ValidationError("Password must be at least 8 characters long.")
 
 
-class Verify2FAInputSchema(BaseSchema):
-    """Schema for 2FA verification"""
-
-    user_id = fields.Int(
-        required=True,
-        validate=validate.Range(min=1),
-        error_messages={
-            "required": "User id is required.",
-            "invalid": "User id must be a valid integer.",
-        },
-    )
-    code = fields.Str(
-        required=True,
-        validate=validate.Length(min=6, max=8),
-        error_messages={
-            "required": "2FA code is required.",
-            "invalid": "Code must be a string.",
-        },
-    )
-
-    @validates("code")
-    def validate_code(self, value: str):
-        """Validate 2FA code format"""
-
-        if not value or not value.strip():
-            raise ValidationError("Code cannot be empty.")
-
-
 class RefreshTokenInputSchema(BaseSchema):
     """Schema for refresh token"""
 
@@ -268,28 +240,4 @@ class AuthTokenResponseSchema(SuccessSchema):
     )
 
 
-class TwoFARequiredResponseSchema(SuccessSchema):
-    """Schema for 2FA required response"""
 
-    data = fields.Nested(
-        Schema.from_dict(
-            {
-                "requires_2fa": fields.Bool(),
-                "message": fields.Str(),
-            }
-        )
-    )
-
-
-class Enable2FAResponseSchema(SuccessSchema):
-    """Schema for enable 2FA response"""
-
-    data = fields.Nested(
-        Schema.from_dict(
-            {
-                "qr_code": fields.Str(),
-                "backup_codes": fields.List(fields.Str()),
-                "message": fields.Str(),
-            }
-        )
-    )

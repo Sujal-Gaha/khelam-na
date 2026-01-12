@@ -2,7 +2,7 @@ from typing import Any, cast
 from flask import Blueprint, Response, jsonify, request
 from marshmallow import ValidationError
 
-from app.schemas.auth_schema import (
+from app.schemas.auth import (
     LoginInputSchema,
     RegisterInputSchema,
     VerifyOTPInputSchema,

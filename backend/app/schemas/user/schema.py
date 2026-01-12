@@ -1,6 +1,6 @@
 from marshmallow import Schema, ValidationError, fields, validate, validates
-from .base import BaseSchema, SuccessSchema
-from .mixins import StripLowerMixin
+from app.schemas.base import BaseSchema, PaginationOutputSchema, SuccessSchema
+from app.schemas.mixins import StripLowerMixin
 
 
 class UserResponseSchema(BaseSchema):
@@ -88,17 +88,27 @@ class GetAllUsersInputSchema(StripLowerMixin, BaseSchema):
     )
 
 
-class GetAllUsersResponseSchema(SuccessSchema):
-    """Schema for getting all users response"""
 
-    data = fields.Nested(
-        Schema.from_dict(
-            {
-                "data": fields.List(fields.Nested(UserResponseSchema)),
-                "pagination": fields.Dict(),
-            }
-        )
-    )
+class GetAllUsersOutputSchema(Schema):
+    data = fields.List(fields.Nested(UserResponseSchema), required=True)
+    pagination = fields.Nested(PaginationOutputSchema, required=True)
+
+
+class GetAllUsersResponseSchema(SuccessSchema):
+    data = fields.Nested(GetAllUsersOutputSchema, dump_only=True)
+
+
+# class GetAllUsersResponseSchema(SuccessSchema):
+#     """Schema for getting all users response"""
+#
+#     data = fields.Nested(
+#         Schema.from_dict(
+#             {
+#                 "data": fields.List(fields.Nested(UserResponseSchema)),
+#                 "pagination": fields.Dict(),
+#             }
+#         )
+#     )
 
 
 class GetUserByIdInputSchema(StripLowerMixin, BaseSchema):

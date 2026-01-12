@@ -21,3 +21,13 @@ class SuccessSchema(Schema):
 class ErrorSchema(Schema):
     error = fields.Str(required=True)
     is_success = fields.Bool(required=True, dump_default=False)
+
+
+class PaginationOutputSchema(Schema):
+    page = fields.Int()
+    per_page = fields.Int()
+    total = fields.Int()
+    pages = fields.Int()
+    has_next = fields.Bool()
+    has_prev = fields.Bool()
+

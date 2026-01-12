@@ -6,6 +6,9 @@ from app.swagger import init_swagger
 from .config import Config
 from .extensions import db, migrate
 
+from .routes.v1.user import bp as user_bp_v1
+from .routes.v1.auth import bp as auth_bp_v1
+
 
 def create_app(config_class=Config) -> Flask:
     app: Flask = Flask(__name__)
@@ -17,9 +20,8 @@ def create_app(config_class=Config) -> Flask:
 
     from .models.user import User
 
-    from .routes.v1 import bp as v1_bp
-
-    app.register_blueprint(v1_bp, url_prefix="/api/v1")
+    app.register_blueprint(user_bp_v1, url_prefix="/api/v1")
+    app.register_blueprint(auth_bp_v1, url_prefix="/api/v1")
 
     init_swagger(app)
 

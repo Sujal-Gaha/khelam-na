@@ -1,7 +1,4 @@
 from typing import List, cast
-import qrcode
-import io
-import base64
 
 from app.models.auth.auth_provider import AuthProvider
 from app.models.auth.enums import AuthProviderEnum
