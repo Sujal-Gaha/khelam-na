@@ -1,10 +1,18 @@
 from typing import Optional
 from app.extensions import db
-from app.models.auth.enums import AuthProviderEnum
 from datetime import datetime, timezone
 
 from sqlalchemy import String, Integer, DateTime, JSON, ForeignKey, UniqueConstraint, Enum 
 from sqlalchemy.orm import Mapped, mapped_column
+import enum
+
+
+class AuthProviderEnum(enum.Enum):
+    """Enum for authentication providers"""
+
+    GOOGLE = "google"
+    GITHUB = "github"
+    # Won't be adding more than this for now
 
 
 class AuthProvider(db.Model):

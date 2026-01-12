@@ -8,8 +8,7 @@ from sqlalchemy import Boolean, String, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
-from app.models.auth.auth_provider import AuthProvider
-from app.models.auth.enums import AuthProviderEnum
+from app.models.auth.auth_provider import AuthProvider, AuthProviderEnum
 from app.models.auth.refresh_token import RefreshToken
 from app.models.auth.otp_code import OTPCode
 

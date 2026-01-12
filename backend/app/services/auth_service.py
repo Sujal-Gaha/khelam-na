@@ -1,10 +1,9 @@
 from typing import List, cast
 
-from app.models.auth.auth_provider import AuthProvider
-from app.models.auth.enums import AuthProviderEnum
+from app.models.auth.auth_provider import AuthProvider, AuthProviderEnum
 from app.models.auth.refresh_token import RefreshToken
 from app.models.user import User
-from app.models.auth import OTPCode
+from app.models.auth.otp_code import OTPCode
 from app.extensions import db
 
 
