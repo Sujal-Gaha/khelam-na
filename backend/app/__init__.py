@@ -19,6 +19,7 @@ def create_app(config_class=Config) -> Flask:
     migrate.init_app(app, db)
 
     from .models.user import User
+    from .models.auth import AuthProvider, AuthProviderEnum, OTPCode, RefreshToken 
 
     app.register_blueprint(user_bp_v1, url_prefix="/api/v1")
     app.register_blueprint(auth_bp_v1, url_prefix="/api/v1")

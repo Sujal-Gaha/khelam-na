@@ -15,7 +15,64 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @bp.route("/register", methods=["POST"])
 def register() -> Response | tuple[Response, int]:
-    """Register a new user with email and password"""
+    """
+    Register new user
+    ---
+    tags:
+      - Auth
+    operationId: register
+    summary: Register a new user
+    description: Registers a new user in the system
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - email
+            - password
+          properties:
+            username:
+              type: string
+              example: johndoe123
+            email:
+              type: string
+              example: john@example.com
+            password:
+              type: string
+              example: strongpassword123
+    responses:
+      "201":
+        description: User registered
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Registration successful
+            user_id:
+              type: integer
+              example: 1
+      "400":
+        description: Bad request - Invalid parameters 
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Invalid email parameter
+      "500":
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+
+    """
     try:
         json_data = request.get_json()
         if not json_data:
@@ -59,7 +116,79 @@ def register() -> Response | tuple[Response, int]:
 
 @bp.route("/login", methods=["POST"])
 def login() -> Response | tuple[Response, int]:
-    """Login with email and password"""
+    """
+    Login user
+    ---
+    tags:
+      - Auth
+    operationId: login
+    summary: Login user
+    description: Login the user into the system
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+            - password
+          properties:
+            email:
+              type: string
+              example: jhon@example.com
+            password:
+              type: string
+              example: strongpassword123
+    responses:
+      "200":
+        description: User logged in
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+              example: ksjdok....kkjdaf
+            refresh_token:
+              type: string
+              example: klljl....sdfakl
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                username:
+                  type: string
+                  example: johndoe123
+                email:
+                  type: string
+                  example: john@example.com
+      "400":
+        description: Bad request - Invalid parameters
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Invalid data
+      "401":
+        description: Unauthorized
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Login failed. User unauthorized
+      "500":
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+    """
     try:
         json_data = request.get_json()
         if not json_data:
@@ -110,7 +239,52 @@ def login() -> Response | tuple[Response, int]:
 
 @bp.route("/send-verification-email", methods=["POST"])
 def send_verification_email() -> Response | tuple[Response, int]:
-    """Send email verification OTP"""
+    """
+    Send verification email to user
+    ---
+    tags:
+      - Auth
+    operationId: send-verification-email
+    summary: Send verification email
+    description: Send otp code to verify users email
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+          properties:
+            email:
+              type: string
+              example: john@example.com
+    responses:
+      "200":
+        descripion: Verification email sent
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: OTP sent to your email
+      "400":
+        description: Bad request - Invalid parameter
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Email is required
+      "500":
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+    """
     try:
         json_data = request.get_json()
         if not json_data:
@@ -134,7 +308,56 @@ def send_verification_email() -> Response | tuple[Response, int]:
 
 @bp.route("/verify-email", methods=["POST"])
 def verify_email() -> Response | tuple[Response, int]:
-    """Verify email with OTP"""
+    """
+    Verify email of user
+    ---
+    tags:
+      - Auth
+    operationId: verify-email
+    summary: Send verification email
+    description: Verify email of user
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - email
+            - code
+          properties:
+            email:
+              type: string
+              example: john@example.com
+            code:
+              type: string
+              example: 87654321
+    responses:
+      "200":
+        description: Email verified
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Email verified successfully
+      "400":
+        description: Bad request - Invalid parameter
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Email is required
+      "500":
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+    """
     try:
         json_data = request.get_json()
         if not json_data:
@@ -165,7 +388,52 @@ def verify_email() -> Response | tuple[Response, int]:
 
 @bp.route("/logout", methods=["POST"])
 def logout() -> Response | tuple[Response, int]:
-    """Logout current device"""
+    """
+    Logout user
+    ---
+    tags:
+      - Auth
+    operationId: logout
+    summary: Logout user
+    description: Log out the user from the system
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - refresh_token
+          properties:
+            refresh_token:
+              type: string
+              example: jdlsk....akswl
+    responses:
+      "200":
+        description: User logged out
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Logged out successfully
+      "400":
+        description: Bad request - Invalid parameter
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: No data provided
+      "500":
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: An unexpected error occured
+    """
     try:
         json_data = request.get_json()
         if not json_data:
@@ -182,3 +450,4 @@ def logout() -> Response | tuple[Response, int]:
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
