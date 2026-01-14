@@ -30,4 +30,3 @@ class PaginationOutputSchema(Schema):
     pages = fields.Int()
     has_next = fields.Bool()
     has_prev = fields.Bool()
-

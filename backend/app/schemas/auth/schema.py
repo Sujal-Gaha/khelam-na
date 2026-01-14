@@ -238,6 +238,3 @@ class AuthTokenResponseSchema(SuccessSchema):
             }
         )
     )
-
-
-

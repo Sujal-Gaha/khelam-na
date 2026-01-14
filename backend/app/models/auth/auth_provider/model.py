@@ -2,7 +2,15 @@ from typing import Optional
 from app.extensions import db
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Integer, DateTime, JSON, ForeignKey, UniqueConstraint, Enum 
+from sqlalchemy import (
+    String,
+    Integer,
+    DateTime,
+    JSON,
+    ForeignKey,
+    UniqueConstraint,
+    Enum,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 import enum
 
@@ -26,13 +34,17 @@ class AuthProvider(db.Model):
     )
 
     # Provider info
-    provider: Mapped[AuthProviderEnum] = mapped_column(Enum(AuthProviderEnum), nullable=False, index=True)
+    provider: Mapped[AuthProviderEnum] = mapped_column(
+        Enum(AuthProviderEnum), nullable=False, index=True
+    )
     provider_user_id: Mapped[str] = mapped_column(
         String(255), nullable=False
     )  # User id from the provider
 
     # Additional provider data (store as JSON)
-    provider_data: Mapped[dict] = mapped_column(JSON, nullable=True)  # email, name, avatar, etc.
+    provider_data: Mapped[dict] = mapped_column(
+        JSON, nullable=True
+    )  # email, name, avatar, etc.
 
     # Timestamps
     linked_at: Mapped[datetime] = mapped_column(

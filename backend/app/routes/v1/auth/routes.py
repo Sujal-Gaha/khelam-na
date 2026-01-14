@@ -1,4 +1,5 @@
 from typing import Any, cast
+
 from flask import Blueprint, Response, jsonify, request
 from marshmallow import ValidationError
 
@@ -56,7 +57,7 @@ def register() -> Response | tuple[Response, int]:
               type: integer
               example: 1
       "400":
-        description: Bad request - Invalid parameters 
+        description: Bad request - Invalid parameters
         schema:
           type: object
           properties:
@@ -450,4 +451,3 @@ def logout() -> Response | tuple[Response, int]:
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-

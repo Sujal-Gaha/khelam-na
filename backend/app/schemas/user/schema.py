@@ -88,7 +88,6 @@ class GetAllUsersInputSchema(StripLowerMixin, BaseSchema):
     )
 
 
-
 class GetAllUsersOutputSchema(Schema):
     data = fields.List(fields.Nested(UserResponseSchema), required=True)
     pagination = fields.Nested(PaginationOutputSchema, required=True)
@@ -96,19 +95,6 @@ class GetAllUsersOutputSchema(Schema):
 
 class GetAllUsersResponseSchema(SuccessSchema):
     data = fields.Nested(GetAllUsersOutputSchema, dump_only=True)
-
-
-# class GetAllUsersResponseSchema(SuccessSchema):
-#     """Schema for getting all users response"""
-#
-#     data = fields.Nested(
-#         Schema.from_dict(
-#             {
-#                 "data": fields.List(fields.Nested(UserResponseSchema)),
-#                 "pagination": fields.Dict(),
-#             }
-#         )
-#     )
 
 
 class GetUserByIdInputSchema(StripLowerMixin, BaseSchema):

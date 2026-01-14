@@ -14,15 +14,19 @@ class OTPCode(db.Model):
     __tablename__ = "otp_codes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
     email: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, index=True)
     code: Mapped[str] = mapped_column(String(10), nullable=False)
     purpose: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
-    expires_at: Mapped[datetime]  = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.now(timezone.utc)
+    )
 
     def __init__(
         self,
