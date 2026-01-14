@@ -40,16 +40,16 @@ class User(db.Model):
     failed_login_attempts: Mapped[int] = mapped_column(
         db.Integer, default=0, nullable=False
     )
-    locked_until = mapped_column(DateTime, nullable=True)
-    last_login = mapped_column(DateTime, nullable=True)
+    locked_until = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login = mapped_column(DateTime(timezone=True), nullable=True)
     last_login_ip: Mapped[str | None] = mapped_column(db.String(45), nullable=True)
 
     # Timestamps
     created_at = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
     )
     updated_at = mapped_column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
@@ -78,19 +78,19 @@ class User(db.Model):
                 setattr(self, key, value)
 
     def has_password(self) -> bool:
-        return self.password_hash is not None and self.verify_password("") is False
+        return self.password is not None and self.verify_password("") is False
 
     def set_password(self, password):
         """Has and set password"""
-        self.password_hash = generate_password_hash(
+        self.password = generate_password_hash(
             password, method="pbkdf2:sha256", salt_length=16
         )
 
     def verify_password(self, password):
         """Verify password"""
-        if not self.password_hash:
+        if not self.password:
             return False
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
     # OAuth Provider Methods
     def get_auth_provider(self, provider):

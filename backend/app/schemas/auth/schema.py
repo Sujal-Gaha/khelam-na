@@ -26,13 +26,13 @@ class RegisterInputSchema(StripLowerMixin, BaseSchema):
         load_only=True,
         validate=validate.Length(min=8),
         error_messages={
-            "required": "Password id required.",
+            "required": "Password is required.",
             "invalid": "Password must be a string.",
         },
     )
 
     @validates("username")
-    def validate_username(self, value: str):
+    def validate_username(self, value: str, **kwargs):
         """Additional validation for username"""
         if not value or not value.strip():
             raise ValidationError("Username cannot be empty or just whitespace.")
@@ -41,13 +41,10 @@ class RegisterInputSchema(StripLowerMixin, BaseSchema):
             raise ValidationError("Username must contain atleast one letter.")
 
     @validates("password")
-    def validate_password(self, value: str):
+    def validate_password(self, value: str, **kwargs):
         """Additional validation for password strength"""
         if not value or not value.strip():
             raise ValidationError("Password cannot be empty or just whitespace.")
-
-        if len(value) < 8:
-            raise ValidationError("Password must be at least 8 characters long.")
 
 
 class LoginInputSchema(StripLowerMixin, BaseSchema):
@@ -90,7 +87,7 @@ class VerifyOTPInputSchema(StripLowerMixin, BaseSchema):
     )
 
     @validates("code")
-    def validate_code(self, value: str):
+    def validate_code(self, value: str, **kwargs):
         """Validate 2FA code format"""
         if not value or not value.strip():
             raise ValidationError("Code cannot be empty.")

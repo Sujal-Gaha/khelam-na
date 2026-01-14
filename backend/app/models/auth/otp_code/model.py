@@ -20,12 +20,12 @@ class OTPCode(db.Model):
     email: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, index=True)
     code: Mapped[str] = mapped_column(String(10), nullable=False)
     purpose: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
     def __init__(
@@ -42,11 +42,17 @@ class OTPCode(db.Model):
         self.code = "".join([str(secrets.randbelow(10)) for _ in range(code_length)])
         self.expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
 
+    def _utc(self, dt: datetime) -> datetime:
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
     def is_valid(self):
         """Check if OTP is valid"""
+        now = datetime.now(timezone.utc)
+
         return (
             not self.is_used
-            and self.expires_at > datetime.now(timezone.utc)
+            and self._utc(self.expires_at) > now
             and self.attempts < 5
         )
 
@@ -67,22 +73,15 @@ class OTPCode(db.Model):
         return False
 
     @staticmethod
-    def create_and_send(purpose, email=None, user_id=None):
+    def create_and_send(purpose, email, user_id=None):
         """Create OTP and send via email/SMS"""
-        # Clean up old unused OTPs
-        if email:
-            OTPCode.query.filter_by(
-                email=email, purpose=purpose, is_used=False
-            ).delete()
+        OTPCode.query.filter_by(email=email, purpose=purpose, is_used=False).delete()
 
-        otp = OTPCode(purpose=purpose, email=email, user_id=user_id)
+        otp = OTPCode(purpose=purpose, email=email, user_id=user_id, code_length=8)
         db.session.add(otp)
         db.session.commit()
 
-        # Send OTP
-        if email:
-            print(f"OTP stolen {otp}")
-            pass
+        print(f"OTP stolen {otp.code}")
 
         return otp
 
