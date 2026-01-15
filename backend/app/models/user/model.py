@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 import jwt
 import secrets
 import uuid
@@ -6,7 +6,7 @@ import uuid
 from flask import current_app
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Boolean, String, DateTime, UUID
+from sqlalchemy import JSON, Boolean, Integer, String, DateTime, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -28,7 +28,10 @@ class User(db.Model):
     password: Mapped[str | None] = mapped_column(
         String(255), nullable=True
     )  # Nullable for OAuth-only users
+
+    current_level: Mapped[int] = mapped_column(Integer, default=1, index=True)
     avatar_url = mapped_column(String(500), nullable=True)
+    preferences: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     # Account Status
     is_email_verified: Mapped[bool] = mapped_column(
