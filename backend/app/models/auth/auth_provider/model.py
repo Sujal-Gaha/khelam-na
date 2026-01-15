@@ -1,25 +1,27 @@
+import enum
+import uuid
+
 from typing import Optional
 from app.extensions import db
 from datetime import datetime, timezone
 
 from sqlalchemy import (
     String,
-    Integer,
     DateTime,
     JSON,
     ForeignKey,
     UniqueConstraint,
     Enum,
+    UUID
 )
 from sqlalchemy.orm import Mapped, mapped_column
-import enum
 
 
 class AuthProviderEnum(enum.Enum):
     """Enum for authentication providers"""
 
-    GOOGLE = "google"
-    GITHUB = "github"
+    GOOGLE = "GOOGLE"
+    GITHUB = "GITHUB"
     # Won't be adding more than this for now
 
 
@@ -28,9 +30,9 @@ class AuthProvider(db.Model):
 
     __tablename__ = "auth_providers"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=False, index=True
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
 
     # Provider info
@@ -40,10 +42,8 @@ class AuthProvider(db.Model):
     provider_user_id: Mapped[str] = mapped_column(
         String(255), nullable=False
     )  # User id from the provider
-
-    # Additional provider data (store as JSON)
     provider_data: Mapped[dict] = mapped_column(
-        JSON, nullable=True
+        JSON, nullable=True, default=dict
     )  # email, name, avatar, etc.
 
     # Timestamps

@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
+import uuid
 from app.extensions import db
 
-from sqlalchemy import Integer, ForeignKey, String, DateTime, Boolean
+from sqlalchemy import UUID, ForeignKey, String, DateTime, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -10,9 +11,9 @@ class RefreshToken(db.Model):
 
     __tablename__ = "refresh_tokens"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=False
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     token: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True
@@ -21,7 +22,7 @@ class RefreshToken(db.Model):
 
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
     # Track device/session info

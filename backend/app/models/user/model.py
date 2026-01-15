@@ -1,10 +1,12 @@
+from typing import Optional
 import jwt
 import secrets
+import uuid
 
 from flask import current_app
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Boolean, String, Integer, DateTime
+from sqlalchemy import Boolean, String, DateTime, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -18,8 +20,7 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    # Basic Info
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(
         String(120), unique=True, nullable=False, index=True
@@ -34,21 +35,20 @@ class User(db.Model):
         Boolean, default=False, nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Security Tracking
     failed_login_attempts: Mapped[int] = mapped_column(
         db.Integer, default=0, nullable=False
     )
-    locked_until = mapped_column(DateTime(timezone=True), nullable=True)
-    last_login = mapped_column(DateTime(timezone=True), nullable=True)
-    last_login_ip: Mapped[str | None] = mapped_column(db.String(45), nullable=True)
+    locked_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login_ip: Mapped[Optional[str]] = mapped_column(db.String(45), nullable=True)
 
     # Timestamps
-    created_at = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
     )
-    updated_at = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),

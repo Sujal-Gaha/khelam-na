@@ -1,10 +1,12 @@
 import secrets
+import uuid
+
 from typing import Optional
 
 from app.extensions import db
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import String, Integer, DateTime, Boolean, ForeignKey
+from sqlalchemy import String, Integer, DateTime, Boolean, ForeignKey, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -13,9 +15,9 @@ class OTPCode(db.Model):
 
     __tablename__ = "otp_codes"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
     email: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, index=True)
     code: Mapped[str] = mapped_column(String(10), nullable=False)
