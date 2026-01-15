@@ -15,12 +15,15 @@ class RefreshToken(db.Model):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
+
     token: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True
     )
     is_revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

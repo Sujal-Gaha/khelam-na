@@ -1,19 +1,11 @@
 import enum
 import uuid
 
-from typing import Optional
+from typing import Any, Optional
 from app.extensions import db
 from datetime import datetime, timezone
 
-from sqlalchemy import (
-    String,
-    DateTime,
-    JSON,
-    ForeignKey,
-    UniqueConstraint,
-    Enum,
-    UUID
-)
+from sqlalchemy import String, DateTime, JSON, ForeignKey, UniqueConstraint, Enum, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -30,7 +22,9 @@ class AuthProvider(db.Model):
 
     __tablename__ = "auth_providers"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
@@ -42,15 +36,19 @@ class AuthProvider(db.Model):
     provider_user_id: Mapped[str] = mapped_column(
         String(255), nullable=False
     )  # User id from the provider
-    provider_data: Mapped[dict] = mapped_column(
+    provider_data: Mapped[dict[str, Any]] = mapped_column(
         JSON, nullable=True, default=dict
     )  # email, name, avatar, etc.
 
     # Timestamps
     linked_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
-    last_used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_used_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Unique constraint: one provider per user
     __table_args__ = (

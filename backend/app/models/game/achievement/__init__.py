@@ -1,3 +1,3 @@
 from .model import Achievement
 
-__all__ = ['Achievement']
+__all__ = ["Achievement"]

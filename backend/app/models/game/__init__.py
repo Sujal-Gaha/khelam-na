@@ -10,23 +10,17 @@ from .xp_transaction import XPTransaction, XPTransactionTypeEnum
 
 __all__ = [
     "Achievement",
-    
     "GameCategory",
-
     "Game",
     "GameScoringTypeEnum",
     "GameTypeEnum",
     "Leaderboard",
     "LeaderboardTimePeriodEnum",
-
     "LeaderboardEntry",
-
     "GameSession",
     "GameSessionStatusEnum",
-
     "UserAchievement",
     "UserGameStats",
-
     "XPTransaction",
-    "XPTransactionTypeEnum"
+    "XPTransactionTypeEnum",
 ]
