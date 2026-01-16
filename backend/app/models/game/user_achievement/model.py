@@ -44,6 +44,13 @@ class UserAchievement(db.Model):
         UniqueConstraint("user_id", "achievement_id", name="uq_user_achievement"),
     )
 
+    def __init__(
+        self, user_id: uuid.UUID, achievement_id: uuid.UUID, progress: dict[str, Any]
+    ):
+        self.user_id = user_id
+        self.achievement_id = achievement_id
+        self.progress = progress
+
     def to_dict(self):
         return {
             "id": self.id,

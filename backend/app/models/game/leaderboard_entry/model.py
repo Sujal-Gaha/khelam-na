@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from sqlalchemy import (
@@ -39,10 +40,12 @@ class LeaderboardEntry(db.Model):
     last_updated: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    period_start: Mapped[datetime] = mapped_column(
+    period_start: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    period_end: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Relationships
     leaderboard: Mapped[Leaderboard] = relationship(
@@ -60,6 +63,22 @@ class LeaderboardEntry(db.Model):
             name="uq_leaderboard_user_period",
         ),
     )
+
+    def __init__(
+        self,
+        leaderboard_id: uuid.UUID,
+        user_id: uuid.UUID,
+        period_start: Optional[datetime],
+        period_end: Optional[datetime],
+        score_value: float,
+        rank: int,
+    ):
+        self.leaderboard_id = leaderboard_id
+        self.user_id = user_id
+        self.period_start = period_start if period_start else None
+        self.period_end = period_end if period_end else None
+        self.score_value = score_value
+        self.rank = rank
 
     def to_dict(self, include_user: bool = False):
         data = {

@@ -1,3 +1,4 @@
+import math
 import jwt
 import secrets
 import uuid
@@ -31,6 +32,7 @@ class User(db.Model):
         String(255), nullable=True
     )  # Nullable for OAuth-only users
 
+    total_xp: Mapped[int] = mapped_column(Integer, default=0, index=True)
     current_level: Mapped[int] = mapped_column(Integer, default=1, index=True)
     avatar_url = mapped_column(String(500), nullable=True)
     preferences: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
@@ -92,7 +94,7 @@ class User(db.Model):
         return self.password is not None and self.verify_password("") is False
 
     def set_password(self, password):
-        """Has and set password"""
+        """Hash and set password"""
         self.password = generate_password_hash(
             password, method="pbkdf2:sha256", salt_length=16
         )
@@ -221,6 +223,18 @@ class User(db.Model):
         db.session.add(refresh_token)
         db.session.commit()
         return token_string
+
+    def calculate_level(self):
+        """Calculate level based on XP using a simple formula"""
+        return max(1, int(math.sqrt(self.total_xp / 100)))
+
+    def add_xp(self, amount):
+        """Add XP and update level"""
+        old_level = self.current_level
+        self.total_xp += amount
+        self.current_level = self.calculate_level()
+
+        return self.current_level > old_level
 
     @staticmethod
     def verify_access_token(token):

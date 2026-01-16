@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 import uuid
 import enum
 
@@ -58,6 +59,18 @@ class GameSession(db.Model):
     user: Mapped[User] = relationship("User", backref="game_sessions")
 
     __table_args__ = (Index("idx_user_game_sessions", "user_id", "game_id"),)
+
+    def __init__(
+        self,
+        game_id: uuid.UUID,
+        user_id: uuid.UUID,
+        status: GameSessionStatusEnum,
+        game_state: dict[str, Any] = {},
+    ):
+        self.game_id = game_id
+        self.user_id = user_id
+        self.game_state = game_state
+        self.status = status
 
     def to_dict(self):
         return {

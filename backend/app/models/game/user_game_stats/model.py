@@ -60,6 +60,10 @@ class UserGameStats(db.Model):
 
     __table_args__ = UniqueConstraint("user_id", "game_id", name="uq_user_game_stats")
 
+    def __init__(self, user_id: uuid.UUID, game_id: uuid.UUID):
+        self.user_id = user_id
+        self.game_id = game_id
+
     def to_dict(self):
         return {
             "id": self.id,

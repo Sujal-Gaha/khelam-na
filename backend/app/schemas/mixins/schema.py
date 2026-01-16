@@ -17,10 +17,10 @@ class StripLowerMixin:
             return data
 
         # Fields that should be stripped and lowercased
-        strip_lower_fields = ["email"]
+        strip_lower_fields = ["email", "slug"]
 
         # Fields that should only be stripped (preserve case)
-        strip_fields = ["name"]
+        strip_fields = ["username"]
 
         for field in strip_lower_fields:
             if field in data and isinstance(data[field], str):

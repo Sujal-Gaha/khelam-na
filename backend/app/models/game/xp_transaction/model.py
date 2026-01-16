@@ -42,7 +42,7 @@ class XPTransaction(db.Model):
         Enum(XPTransactionTypeEnum), nullable=False
     )
 
-    reference_id: Mapped[str] = mapped_column(String(255))
+    reference_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     meta: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     created_at: Mapped[datetime] = mapped_column(
@@ -52,6 +52,24 @@ class XPTransaction(db.Model):
     # Relationships
     user: Mapped[User] = relationship("User", backref="xp_transactions")
 
+    def __init__(
+        self,
+        user_id: uuid.UUID,
+        xp_amount: int,
+        type: XPTransactionTypeEnum,
+        reference_id: Optional[str] = None,
+        game_id: Optional[uuid.UUID] = None,
+        session_id: Optional[uuid.UUID] = None,
+        meta: Optional[dict[str, Any]] = {},
+    ):
+        self.user_id = user_id
+        self.xp_amount = xp_amount
+        self.type = type
+        self.reference_id = reference_id
+        self.game_id = game_id if game_id else None
+        self.session_id = session_id if session_id else None
+        self.meta = meta if meta else {}
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -60,7 +78,7 @@ class XPTransaction(db.Model):
             "session_id": self.session_id,
             "xp_amount": self.xp_amount,
             "type": self.type,
-            "metadata": self.metadata,
+            "meta": self.meta,
             "created_at": self.created_at,
         }
 
