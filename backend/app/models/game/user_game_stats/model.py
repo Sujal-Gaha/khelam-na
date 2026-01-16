@@ -18,6 +18,8 @@ from app.models.game import Game
 
 
 class UserGameStats(db.Model):
+    """User game stats model"""
+
     __tablename__ = "user_game_stats"
 
     id: Mapped[uuid.UUID] = mapped_column(

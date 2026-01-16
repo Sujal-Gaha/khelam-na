@@ -18,6 +18,8 @@ from app.models.game import Leaderboard
 
 
 class LeaderboardEntry(db.Model):
+    """Leaderboard entry model"""
+
     __tablename__ = "leaderboard_entries"
 
     id: Mapped[uuid.UUID] = mapped_column(

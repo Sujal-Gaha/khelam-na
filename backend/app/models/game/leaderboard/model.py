@@ -18,6 +18,8 @@ class LeaderboardTimePeriodEnum(enum.Enum):
 
 
 class Leaderboard(db.Model):
+    """Leaderboard model"""
+
     __tablename__ = "leaderboards"
 
     id: Mapped[uuid.UUID] = mapped_column(

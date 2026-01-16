@@ -20,6 +20,8 @@ class XPTransactionTypeEnum(enum.Enum):
 
 
 class XPTransaction(db.Model):
+    """XP transaction model"""
+
     __tablename__ = "xp_transactions"
 
     id: Mapped[uuid.UUID] = mapped_column(

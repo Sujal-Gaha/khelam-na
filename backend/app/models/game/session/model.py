@@ -17,6 +17,8 @@ class GameSessionStatusEnum(enum.Enum):
 
 
 class GameSession(db.Model):
+    """Game session model"""
+
     __tablename__ = "game_sessions"
 
     id: Mapped[uuid.UUID] = mapped_column(

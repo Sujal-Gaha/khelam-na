@@ -42,6 +42,8 @@ class GameScoringTypeEnum(enum.Enum):
 
 
 class Game(db.Model):
+    """Game model"""
+
     __tablename__ = "games"
 
     id: Mapped[uuid.UUID] = mapped_column(

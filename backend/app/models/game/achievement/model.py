@@ -11,6 +11,8 @@ from app.models.game import Game, UserAchievement
 
 
 class Achievement(db.Model):
+    """Achievement model"""
+
     __tablename__ = "achievements"
 
     id: Mapped[uuid.UUID] = mapped_column(
