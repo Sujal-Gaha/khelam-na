@@ -1,13 +1,21 @@
 import uuid
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Optional, TypedDict
 
 from app.extensions import db
 from app.models.game import XPTransaction, XPTransactionTypeEnum
 from app.models.game.session.model import GameSession
 from app.models.game.user_game_stats.model import UserGameStats
 from app.models.user import User
+
+
+class XPAwardResult(TypedDict):
+    transaction: XPTransaction
+    new_total_xp: int
+    new_level: int
+    leveled_up: bool
+    xp_earned: int
 
 
 class XPService:
@@ -21,8 +29,8 @@ class XPService:
         game_id=None,
         session_id=None,
         reference_id=None,
-        meta={},
-    ):
+        meta: dict[str, Any] | None = None,
+    ) -> tuple[Optional[XPAwardResult], Optional[str]]:
         """Award XP to a user"""
 
         user: User | None = User.query.get(user_id)
@@ -54,12 +62,12 @@ class XPService:
         }, None
 
     @staticmethod
-    def process_session_completion(session_id) -> Optional[dict[str, Any]]:
+    def process_session_completion(session_id) -> Optional[XPAwardResult]:
         """Process XP rewards for completed session"""
 
         session: GameSession | None = GameSession.query.get(session_id)
         if not session or not session.completed:
-            return {"xp_earned": 0}
+            return None
 
         game = session.game
         xp_calc = game.xp_calculation or {}

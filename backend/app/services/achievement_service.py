@@ -107,7 +107,7 @@ class AchievementService:
             stat_name = requirement_def.get("stat")
             threshold = requirement_def.get("threshold")
 
-            if threshold or not isinstance(threshold, "int"):
+            if threshold or not isinstance(threshold, int):
                 return False, {"current": 0, "required": 0}
 
             if not stat_name:
@@ -140,7 +140,7 @@ class AchievementService:
             stat_name = requirement_def.get("stat")
             threshold = requirement_def.get("threshold")
 
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id,
                 game_id=game_id,
             ).first()
@@ -161,7 +161,7 @@ class AchievementService:
         elif req_type == "score_threshold":
             score_threshold = requirement_def.get("score")
 
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id,
                 game_id=game_id,
             ).first()

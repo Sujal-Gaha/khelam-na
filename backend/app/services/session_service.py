@@ -1,7 +1,7 @@
 import uuid
 
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from app.extensions import db
 from app.models.game import Game, GameSession, GameSessionStatusEnum
@@ -15,7 +15,11 @@ class SessionService:
     """Service for managing game sessions"""
 
     @staticmethod
-    def start_session(game_id, user_id, initial_state=None):
+    def start_session(
+        game_id: uuid.UUID,
+        user_id: uuid.UUID,
+        initial_state: Optional[Dict[str, Any]] = None,
+    ) -> tuple[Optional[GameSession], Optional[str]]:
         """Start a new game session"""
 
         game: Game | None = Game.query.get(game_id)
@@ -47,7 +51,7 @@ class SessionService:
     def update_session_state(session_id, new_state):
         """Update the game state of an active session"""
 
-        session: GameSession | None = GameSession.query.get(session_id)
+        session = GameSession.query.get(session_id)
         if not session:
             return None, "Session is not active"
 
@@ -66,7 +70,7 @@ class SessionService:
             final_score: Final score achieved
             final_stats: Dict of game-specific stats
         """
-        session: GameSession | None = GameSession.query.get(session_id)
+        session = GameSession.query.get(session_id)
         if not session:
             return None, "Session not found"
 

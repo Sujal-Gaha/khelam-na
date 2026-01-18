@@ -109,7 +109,7 @@ class LeaderboardService:
 
         elif criteria_type == "game_xp":
             # Game-specific XP
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id, game_id=game_id
             ).first()
 
@@ -124,7 +124,7 @@ class LeaderboardService:
 
         elif criteria_type == "best_score":
             # Best score in a game
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id,
                 game_id=game_id,
             ).first()
@@ -140,7 +140,7 @@ class LeaderboardService:
 
         elif criteria_type == "average_score":
             # Average score
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id, game_id=game_id
             ).first()
 
@@ -155,7 +155,7 @@ class LeaderboardService:
 
         elif criteria_type == "games_completed":
             # Total games completed
-            stats: UserGameStats | None = UserGameStats.query.filter_by(
+            stats = UserGameStats.query.filter_by(
                 user_id=user_id, game_id=game_id
             ).first()
 
