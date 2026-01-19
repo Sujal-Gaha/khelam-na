@@ -39,8 +39,8 @@ class GameSession(db.Model):
     )
 
     # Game state and results
-    game_state: Mapped[dict] = mapped_column(JSON, default=dict)
-    final_stats: Mapped[dict] = mapped_column(JSON, default=dict)
+    game_state: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    final_stats: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     score: Mapped[int] = mapped_column(Integer, default=0)
     xp_earned: Mapped[int] = mapped_column(Integer, default=0)

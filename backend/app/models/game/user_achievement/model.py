@@ -45,7 +45,10 @@ class UserAchievement(db.Model):
     )
 
     def __init__(
-        self, user_id: uuid.UUID, achievement_id: uuid.UUID, progress: dict[str, Any]
+        self,
+        user_id: uuid.UUID,
+        achievement_id: uuid.UUID,
+        progress: dict[str, Any] = {},
     ):
         self.user_id = user_id
         self.achievement_id = achievement_id

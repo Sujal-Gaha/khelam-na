@@ -29,7 +29,7 @@ class XPService:
         game_id=None,
         session_id=None,
         reference_id=None,
-        meta: dict[str, Any] | None = None,
+        meta: dict[str, Any] = {},
     ) -> tuple[Optional[XPAwardResult], Optional[str]]:
         """Award XP to a user"""
 

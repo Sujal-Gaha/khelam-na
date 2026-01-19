@@ -60,7 +60,7 @@ class XPTransaction(db.Model):
         reference_id: Optional[str] = None,
         game_id: Optional[uuid.UUID] = None,
         session_id: Optional[uuid.UUID] = None,
-        meta: Optional[dict[str, Any]] = {},
+        meta: dict[str, Any] = {},
     ):
         self.user_id = user_id
         self.xp_amount = xp_amount
@@ -68,7 +68,7 @@ class XPTransaction(db.Model):
         self.reference_id = reference_id
         self.game_id = game_id if game_id else None
         self.session_id = session_id if session_id else None
-        self.meta = meta if meta else {}
+        self.meta = meta
 
     def to_dict(self):
         return {

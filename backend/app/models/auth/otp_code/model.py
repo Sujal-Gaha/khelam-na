@@ -37,11 +37,11 @@ class OTPCode(db.Model):
 
     def __init__(
         self,
-        purpose,
-        email=None,
-        user_id=None,
-        code_length=6,
-        expires_in=600,
+        purpose: str,
+        email: Optional[str] = None,
+        user_id: Optional[uuid.UUID] = None,
+        code_length: int = 6,
+        expires_in: int = 600,
     ):
         self.user_id = user_id
         self.email = email
@@ -52,7 +52,7 @@ class OTPCode(db.Model):
     def _utc(self, dt: datetime) -> datetime:
         return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Check if OTP is valid"""
         now = datetime.now(timezone.utc)
 
@@ -60,7 +60,7 @@ class OTPCode(db.Model):
             not self.is_used and self._utc(self.expires_at) > now and self.attempts < 5
         )
 
-    def verify(self, code):
+    def verify(self, code: int) -> bool:
         """Verify OTP code"""
         self.attempts += 1
 
@@ -77,7 +77,7 @@ class OTPCode(db.Model):
         return False
 
     @staticmethod
-    def create_and_send(purpose, email, user_id=None):
+    def create_and_send(purpose: str, email: str, user_id: Optional[uuid.UUID] = None):
         """Create OTP and send via email/SMS"""
         OTPCode.query.filter_by(email=email, purpose=purpose, is_used=False).delete()
 
@@ -90,7 +90,7 @@ class OTPCode(db.Model):
         return otp
 
     @staticmethod
-    def verify_code(code, purpose, email=None):
+    def verify_code(code: int, purpose: str, email: Optional[str] = None) -> bool:
         """Verify OTP code"""
         query = OTPCode.query.filter_by(purpose=purpose, is_used=False)
 

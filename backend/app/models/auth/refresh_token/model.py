@@ -32,12 +32,12 @@ class RefreshToken(db.Model):
     user_agent: Mapped[str] = mapped_column(String(500), nullable=True)
     ip_address: Mapped[str] = mapped_column(String(45), nullable=True)
 
-    def __init__(self, user_id, token, expires_at):
+    def __init__(self, user_id: uuid.UUID, token: str, expires_at: datetime):
         self.user_id = user_id
         self.token = token
         self.expires_at = expires_at
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Check if token is valid"""
         return not self.is_revoked and self.expires_at > datetime.now(timezone.utc)
 

@@ -36,8 +36,8 @@ class AuthProvider(db.Model):
     provider_user_id: Mapped[str] = mapped_column(
         String(255), nullable=False
     )  # User id from the provider
-    provider_data: Mapped[dict[str, Any]] = mapped_column(
-        JSON, nullable=True, default=dict
+    provider_data: Mapped[Optional[dict[str, Any]]] = mapped_column(
+        JSON, nullable=True
     )  # email, name, avatar, etc.
 
     # Timestamps
@@ -56,7 +56,13 @@ class AuthProvider(db.Model):
         UniqueConstraint("provider", "provider_user_id", name="uq_provider_user_id"),
     )
 
-    def __init__(self, user_id, provider, provider_user_id, provider_data):
+    def __init__(
+        self,
+        user_id: uuid.UUID,
+        provider: AuthProviderEnum,
+        provider_user_id: str,
+        provider_data: Optional[dict[str, Any]] = None,
+    ):
         self.user_id = user_id
         self.provider = provider
         self.provider_user_id = provider_user_id
@@ -71,7 +77,7 @@ class AuthProvider(db.Model):
         return f"<AuthProvider {self.provider.value} for user {self.user_id}>"
 
     @staticmethod
-    def find_by_provider(provider, provider_user_id):
+    def find_by_provider(provider: AuthProviderEnum, provider_user_id: str):
         """
         Find user by OAuth provider
 
@@ -82,7 +88,7 @@ class AuthProvider(db.Model):
         Returns:
             User or None
         """
-        if isinstance(provider, str):
+        if isinstance(provider, AuthProviderEnum):
             provider = AuthProviderEnum(provider)
 
             auth_provider = AuthProvider.query.filter_by(

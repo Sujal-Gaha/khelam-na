@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 
 class BaseGame(ABC):
@@ -10,8 +10,8 @@ class BaseGame(ABC):
 
     @abstractmethod
     def initialize_session(
-        self, user_id: str, options: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, user_id: str, options: Optional[dict] = None
+    ) -> dict[str, Any]:
         """
         Initialize a new game session
 
@@ -25,7 +25,7 @@ class BaseGame(ABC):
         pass
 
     @abstractmethod
-    def process_action(self, game_state: Dict, action: Dict) -> Tuple[Dict, Dict]:
+    def process_action(self, game_state: dict, action: dict) -> tuple[dict, dict]:
         """
         Process a player action and return updated state and response
 
@@ -49,7 +49,7 @@ class BaseGame(ABC):
         pass
 
     @abstractmethod
-    def check_completion(self, game_state: Dict) -> Tuple[bool, Optional[Dict]]:
+    def check_completion(self, game_state: dict) -> tuple[bool, Optional[dict]]:
         """
         Check if the game/session is complete
 
@@ -63,7 +63,7 @@ class BaseGame(ABC):
         """
         pass
 
-    def validate_action(self, game_state: Dict, action: Dict) -> Tuple[bool, str]:
+    def validate_action(self, game_state: dict, action: dict) -> tuple[bool, str]:
         """
         Validate if an action is legal (optional override)
 
@@ -73,7 +73,7 @@ class BaseGame(ABC):
         # Default: all actions are valid, games can override
         return True, ""
 
-    def get_next_challenge(self, game_state: Dict) -> Optional[Dict]:
+    def get_next_challenge(self, game_state: dict) -> Optional[dict]:
         """
         Get the next challenge/question/level (for quiz, challenge games)
 
@@ -83,7 +83,7 @@ class BaseGame(ABC):
         # Default implementation for games that don't use challenges
         return None
 
-    def calculate_final_score(self, game_state: Dict) -> int:
+    def calculate_final_score(self, game_state: dict) -> int:
         """
         Calculate the final score from game state
 
@@ -97,7 +97,7 @@ class BaseGame(ABC):
         score = game_state.get("score", 0) or 0
         return score
 
-    def get_performance_metrics(self, game_state: Dict) -> Dict[str, Any]:
+    def get_performance_metrics(self, game_state: dict) -> dict[str, Any]:
         """
         Extract performance metrics for display/analysis
 
@@ -106,7 +106,7 @@ class BaseGame(ABC):
         """
         return {}
 
-    def get_stats_to_track(self, game_static: Dict) -> Dict[str, Any]:
+    def get_stats_to_track(self, game_static: dict) -> dict[str, Any]:
         """
         Extract stats to save to user_game_stats.custom_stats
 

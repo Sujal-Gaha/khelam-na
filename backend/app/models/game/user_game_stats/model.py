@@ -1,3 +1,4 @@
+from typing import Any
 import uuid
 
 from sqlalchemy import (
@@ -40,8 +41,7 @@ class UserGameStats(db.Model):
     current_streak: Mapped[int] = mapped_column(Integer, default=0)
     best_streak: Mapped[int] = mapped_column(Integer, default=0)
 
-    # Game-specific stats (flexible)
-    custom_stats: Mapped[dict] = mapped_column(JSON, default=dict)
+    custom_stats: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     # Performance metrics
     average_score: Mapped[float] = mapped_column(Float, default=0.00)

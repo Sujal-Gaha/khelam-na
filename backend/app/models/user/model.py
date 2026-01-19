@@ -93,20 +93,20 @@ class User(db.Model):
     def has_password(self) -> bool:
         return self.password is not None and self.verify_password("") is False
 
-    def set_password(self, password):
+    def set_password(self, password: str):
         """Hash and set password"""
         self.password = generate_password_hash(
             password, method="pbkdf2:sha256", salt_length=16
         )
 
-    def verify_password(self, password):
+    def verify_password(self, password: str):
         """Verify password"""
         if not self.password:
             return False
         return check_password_hash(self.password, password)
 
     # OAuth Provider Methods
-    def get_auth_provider(self, provider):
+    def get_auth_provider(self, provider: AuthProviderEnum):
         """
         Get OAuth provider for this user
 
@@ -121,7 +121,12 @@ class User(db.Model):
 
         return AuthProvider.query.filter_by(user_id=self.id, provider=provider).first()
 
-    def add_auth_provider(self, provider, provider_user_id, provider_data=None):
+    def add_auth_provider(
+        self,
+        provider: AuthProviderEnum,
+        provider_user_id: str,
+        provider_data: Optional[dict[str, Any]] = None,
+    ):
         """
         Link OAuth provider to user
 
@@ -156,9 +161,9 @@ class User(db.Model):
         db.session.commit()
         return auth_provider
 
-    def remove_auth_provider(self, provider):
+    def remove_auth_provider(self, provider: AuthProviderEnum) -> bool:
         """Remove OAuth provider"""
-        if isinstance(provider, str):
+        if isinstance(provider, AuthProviderEnum):
             provider = AuthProviderEnum(provider)
 
         auth_provider = self.get_auth_provider(provider)
@@ -168,16 +173,16 @@ class User(db.Model):
             return True
         return False
 
-    def has_auth_provider(self, provider):
+    def has_auth_provider(self, provider: AuthProviderEnum) -> bool:
         """Check if user has linked OAuth provider"""
         return self.get_auth_provider(provider) is not None
 
-    def get_linked_providers(self):
+    def get_linked_providers(self) -> list[str]:
         """Get list of linked OAuth providers"""
         return [ap.provider.value for ap in self.auth_providers]
 
     # Account Security
-    def is_account_locked(self):
+    def is_account_locked(self) -> bool:
         """Check if account is locked"""
         if self.locked_until and self.locked_until > datetime.now(timezone.utc):
             return True
@@ -201,7 +206,7 @@ class User(db.Model):
         db.session.commit()
 
     # JWT Token Methods
-    def generate_access_token(self, expires_in=900):
+    def generate_access_token(self, expires_in: int = 900):
         """Generate short-lived access token (15 minutes)"""
         payload = {
             "user_id": self.id,
@@ -228,7 +233,7 @@ class User(db.Model):
         """Calculate level based on XP using a simple formula"""
         return max(1, int(math.sqrt(self.total_xp / 100)))
 
-    def add_xp(self, amount):
+    def add_xp(self, amount: int):
         """Add XP and update level"""
         old_level = self.current_level
         self.total_xp += amount
